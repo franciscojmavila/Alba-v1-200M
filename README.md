@@ -132,12 +132,11 @@ Esto es un límite físico esperable en modelos de este tamaño, no un error de 
 Para utilizar a Alba no es necesario hardware especializado, ya que es un modelo ligero.
 
 Se necesita como mínimo:
-- **Python**: 3.9 o superior.
+- **Python**: 3.14 (versión con la que fue probada). Con otras versiones la instalación puede fallar.
 - **Procesador (CPU)**: 2 núcleos / 2 hilos a 2.0GHz o más (cualquier procesador x86_64 o ARM64 moderno de gama de entrada).
 - **Memoria RAM**: 2 GB libres (los pesos ocupan ~400 MB en disco y ~800 MB en RAM al cargarse en float32, más lo que consume JAX para la compilación JIT).
 - **Espacio en disco**: ~1GB.
 - **Tarjeta gráfica**: No requerida. No hace falta GPU dedicada ni gráfica integrada (iGPU). La inferencia se ejecuta íntegramente sobre la CPU.
-
 
 **Por el momento no es posible ejecutarla en celulares.**
 
@@ -154,6 +153,7 @@ Invoke-WebRequest "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/
 Invoke-WebRequest "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/tokenizador_bilingue-vocab.json" -OutFile "tokenizador_bilingue-vocab.json"
 Invoke-WebRequest "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/tokenizador_bilingue-merges.txt" -OutFile "tokenizador_bilingue-merges.txt"
 Invoke-WebRequest "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/Alba-v1-200M.safetensors" -OutFile "Alba-v1-200M.safetensors"
+Invoke-WebRequest "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/requirements.txt" -OutFile "requirements.txt"
 ```
 
 **Linux / macOS (Terminal):**
@@ -166,6 +166,7 @@ curl -LO "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/Alba
 curl -LO "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/tokenizador_bilingue-vocab.json"
 curl -LO "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/tokenizador_bilingue-merges.txt"
 curl -LO "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/Alba-v1-200M.safetensors"
+curl -LO "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/requirements.txt"
 ```
 
 ### 2. Crear entorno virtual e instalar dependencias
@@ -174,15 +175,28 @@ curl -LO "https://huggingface.co/franciscojmavila/Alba-v1-200M/resolve/main/Alba
 ```powershell
 python -m venv Alba
 .\Alba\Scripts\Activate.ps1
-pip install jax jaxlib flax safetensors tokenizers numpy
+pip install -r requirements.txt
 ```
+
+> **Nota:** Si PowerShell bloquea `Activate.ps1` con un error de seguridad, se debe ejecutar `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` una sola vez y volver a intentar.
 
 **Linux / macOS (Terminal):**
 ```bash
 python3 -m venv Alba
 source Alba/bin/activate
-pip install jax jaxlib flax safetensors tokenizers numpy
+pip install -r requirements.txt
 ```
+
+> **Nota:** El comando para activar el entorno depende del intérprete de comandos del sistema:
+> - bash o zsh (la mayoría de Linux y macOS): `source Alba/bin/activate`
+> - fish: `source Alba/bin/activate.fish`
+> - csh o tcsh: `source Alba/bin/activate.csh`
+> - nushell: `overlay use Alba/bin/activate.nu`
+>
+> Si no se sabe con certeza qué intérprete de comandos se usa, se debe ejecutar `echo $SHELL`.
+
+> [!CAUTION]
+> Las librerías que Alba necesita directamente son jax, jaxlib, flax, safetensors, tokenizers y numpy. Las demás incluidas en `requirements.txt` son dependencias de esas librerías, y no se recomienda modificarlas ni omitirlas.
 
 ### 3. Ejecutar
 
@@ -192,7 +206,7 @@ python alba-v1.py
 
 El archivo `alba-v1.py` ya contiene toda la arquitectura y la lógica de inferencia. No se recomienda alterar los hiperparámetros de generación, ya que fueron calibrados específicamente para esta versión del modelo. Modificarlos puede producir más alucinaciones o bucles de repetición.
 
-> **Nota:** Si movés o renombrás la carpeta `Alba-v1-200M` después de haber creado el entorno virtual, vas a tener que recrearlo (borrar la carpeta `Alba` y repetir el paso 2). Esto es una limitación de Python, no de Alba.
+> **Nota:** Si se mueve o se renombra la carpeta `Alba-v1-200M` después de haber creado el entorno virtual, hay que recrearlo (borrar la carpeta `Alba` y repetir el paso 2). Esto es una limitación de Python, no de Alba.
 
 # Agradecimiento
 
